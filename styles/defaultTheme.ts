@@ -42,19 +42,9 @@ const margin = {
   xxxl: calcRem(18),
 };
 
-const button = {
-  sm: calcRem(8),
-  md: calcRem(10),
-  lg: calcRem(12),
-  xl: calcRem(14),
-  xxl: calcRem(16),
-  xxxl: calcRem(18),
-};
-
 export const defaultTheme: DefaultTheme = {
   media,
   font,
   padding,
   margin,
-  button,
 };

@@ -1,4 +1,4 @@
-export const palette = {
+export const palette: { [index: string]: string } = {
   pink: '#F85F73',
   beige: '#FBE8D3',
   navy: '#283C63',

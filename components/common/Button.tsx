@@ -1,15 +1,37 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import { palette } from '../../styles/palette';
 
 interface ButtonProps
   extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'size'> {
   color?: 'pink' | 'beige' | 'gray' | 'navy';
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
+  size?: 'md' | 'lg';
 }
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<{ color: string; size: string }>`
   color: white;
   font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  background-color: ${(props) => palette[props.color]};
+  ${(props) =>
+    props.size === 'md' &&
+    css`
+      height: 2rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      font-size: 1rem;
+    `}
+  ${(props) =>
+    props.size === 'lg' &&
+    css`
+      height: 2.5rem;
+      padding-left: 1.125rem;
+      padding-right: 1.125rem;
+      font-size: 1.125rem;
+    `}
 `;
 
 const Button: React.FC<ButtonProps> = ({

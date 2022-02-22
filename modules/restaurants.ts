@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import * as RestaurantAPI from '../lib/api/restaurants';
+import { GetAllByLocationRequest } from '../lib/api/restaurants';
 
 export interface Menu {
   name: string;
@@ -16,53 +17,80 @@ export interface Type {
 }
 
 export interface Restaurant {
-  id?: number;
+  id: number;
   name: string;
   tel: string;
   address: string;
-  location: { x: number; y: number };
+  latitude: number;
+  longitude: number;
   menus: Menu[];
   categories: Category[];
   types: Type[];
 }
 
 export interface RestaurantsState {
-  loading: boolean;
+  pending: boolean | null;
   data: Restaurant[];
 }
 
-export const action = {
-  getRestaurants: createAsyncThunk('GET/RESTAURANTS', async () => {
-    const response = await RestaurantAPI.getRestaurants();
+export const getAllRestaurants = createAsyncThunk(
+  'restaurants/getAll',
+  async () => {
+    const response = await RestaurantAPI.getAll();
     return response.data;
-  }),
-};
+  },
+);
+
+export const getAllRestaurantsByLocation = createAsyncThunk(
+  'restaurants/getAllByLocation',
+  async ({ southWest, northEast }: GetAllByLocationRequest) => {
+    const response = await RestaurantAPI.getAllByLocation({
+      southWest,
+      northEast,
+    });
+    return response.data;
+  },
+);
 
 const initialState: RestaurantsState = {
-  loading: false,
+  pending: null,
   data: [],
 };
 
-const restaurants = createSlice({
+const restaurantsSlice = createSlice({
   name: 'restaurants',
   initialState,
   reducers: {},
   extraReducers: {
-    [action.getRestaurants.pending.type]: (state, action) => {
-      state.loading = true;
+    [getAllRestaurants.pending.type]: (state, action) => {
+      state.pending = true;
     },
-    [action.getRestaurants.fulfilled.type]: (
+    [getAllRestaurants.fulfilled.type]: (
       state,
       action: PayloadAction<Restaurant[]>,
     ) => {
-      state.loading = true;
+      state.pending = false;
       state.data = action.payload;
     },
-    [action.getRestaurants.rejected.type]: (state, action) => {
-      state.loading = true;
+    [getAllRestaurants.rejected.type]: (state, action) => {
+      state.pending = false;
+      state.data = [];
+    },
+    [getAllRestaurantsByLocation.pending.type]: (state, action) => {
+      state.pending = true;
+    },
+    [getAllRestaurantsByLocation.fulfilled.type]: (
+      state,
+      action: PayloadAction<Restaurant[]>,
+    ) => {
+      state.pending = false;
+      state.data = action.payload;
+    },
+    [getAllRestaurantsByLocation.rejected.type]: (state, action) => {
+      state.pending = false;
       state.data = [];
     },
   },
 });
 
-export default restaurants;
+export default restaurantsSlice.reducer;

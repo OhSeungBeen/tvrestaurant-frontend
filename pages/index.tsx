@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styled from 'styled-components';
+
 import Header from '../components/base/Header';
 import Drawer from '../components/home/Drawer';
 import KakaoMap from '../components/home/Kakaomap';
 import HomeLayout from '../components/layout/HomeLayout';
 import Footer from '../components/base/Footer';
+import { getAllRestaurantsByLocation } from '../modules/restaurants';
+import { RootState } from '../modules';
 
 const Left = styled.div`
   display: flex;
@@ -49,12 +53,23 @@ const ScrollWrapper = styled.div`
 `;
 
 const HomePage: NextPage = () => {
+  const dispatch = useDispatch();
+
+  const restaurants = useSelector((state: RootState) => state.restaurants.data);
+
   const [address, setAddress] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const onSearch = (mapRef: any) => {
-    console.log(mapRef.current.getBounds().getSouthWest());
-    console.log(mapRef.current.getBounds().getNorthEast());
+    const southWest = mapRef.current.getBounds().getSouthWest();
+    const northEast = mapRef.current.getBounds().getNorthEast();
+    dispatch(
+      getAllRestaurantsByLocation({
+        southWest: { latitude: southWest.Ma, longitude: southWest.La },
+        northEast: { latitude: northEast.Ma, longitude: northEast.La },
+      }),
+    );
+
     setDrawerOpen(true);
   };
 
@@ -62,9 +77,9 @@ const HomePage: NextPage = () => {
     setAddress(address);
   };
 
-  function onDismiss() {
-    // setOpen(false)
-  }
+  const onDismiss = () => {
+    setDrawerOpen(false);
+  };
 
   return (
     <>
@@ -87,8 +102,13 @@ const HomePage: NextPage = () => {
             <KakaoMap
               address={address ? address : undefined}
               onSearch={onSearch}
+              restaurants={restaurants}
             />
-            <Drawer open={drawerOpen} />
+            <Drawer
+              open={drawerOpen}
+              onDismiss={onDismiss}
+              restaurants={restaurants}
+            />
             <Footer />
           </ScrollWrapper>
         </HomeContainer>

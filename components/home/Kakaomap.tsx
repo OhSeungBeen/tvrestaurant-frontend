@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import store from '../../assets/icon/store.png';
 import { MdLocationOn } from 'react-icons/md';
+
+import { Restaurant } from '../../modules/restaurants';
 
 interface KakaoMapProps {
   address?: string;
+  restaurants: Restaurant[];
   onSearch: (mapRef: any) => void;
 }
 
@@ -46,12 +48,10 @@ const Map = styled.div`
   height: 100%;
 `;
 
-const createMarker = (map: any, center: any, type: string) => {
+const createMarker = (map: any, center: any, imageUrl: string) => {
   let makerImage = new window.kakao.maps.MarkerImage(
-    type === 'store' ? '/location.png' : '/location.png',
-    type === 'store'
-      ? new window.kakao.maps.Size(35, 35)
-      : new window.kakao.maps.Size(35, 35),
+    imageUrl,
+    new window.kakao.maps.Size(35, 35),
   );
   let marker = new window.kakao.maps.Marker({
     position: center,
@@ -60,17 +60,21 @@ const createMarker = (map: any, center: any, type: string) => {
   marker.setMap(map);
 };
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ address, onSearch }) => {
-  const mapRef = useRef<any>();
+const KakaoMap: React.FC<KakaoMapProps> = ({
+  address,
+  restaurants,
+  onSearch,
+}) => {
+  // const [windowSize, setWindowSize] = useState({
+  //   width: 0,
+  //   height: 0,
+  // });
+  // const [mapCenter, setMapCenter] = useState({
+  //   latitude: 37.558185720490265,
+  //   longitude: 126.94538209325268,
+  // });
 
-  const [windowSize, setWindowSize] = useState({
-    width: 0,
-    height: 0,
-  });
-  const [mapCenter, setMapCenter] = useState({
-    latitude: 37.541,
-    longitude: 126.986,
-  });
+  const mapRef = useRef<any>();
 
   useEffect(() => {
     const mapScript = document.createElement('script');
@@ -82,13 +86,13 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ address, onSearch }) => {
       window.kakao.maps.load(() => {
         const container = document.getElementById('map');
         let center = new window.kakao.maps.LatLng(
-          mapCenter.latitude,
-          mapCenter.longitude,
+          // mapCenter.latitude,
+          // mapCenter.longitude,
+          37.558185720490265,
+          126.94538209325268,
         );
         const map = new window.kakao.maps.Map(container, { center, level: 3 });
         mapRef.current = map;
-
-        createMarker(map, center, 'store');
       });
     };
     mapScript.addEventListener('load', onLoadKakaoMap);
@@ -102,36 +106,58 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ address, onSearch }) => {
       geocoder.addressSearch(address, function (result: any, status: any) {
         if (status === window.kakao.maps.services.Status.OK) {
           let center = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-          setMapCenter({ latitude: result[0].y, longitude: result[0].x });
+          // setMapCenter({ latitude: result[0].y, longitude: result[0].x });
           mapRef.current.setCenter(center);
-          createMarker(mapRef.current, center, 'myLocation');
+          createMarker(mapRef.current, center, '/location.png');
         }
       });
     }
   }, [address]);
 
   useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', handleResize);
-    }
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (windowSize.width < 767 && windowSize.width !== 0) {
-      let center = new window.kakao.maps.LatLng(
-        mapCenter.latitude,
-        mapCenter.longitude,
+    restaurants.forEach((restaurant) => {
+      let imageSize = new window.kakao.maps.Size(30, 30);
+      let markerImage = new window.kakao.maps.MarkerImage(
+        '/골목식당.png',
+        imageSize,
       );
-      mapRef.current.setCenter(center);
-    }
-  }, [windowSize]);
+
+      let marker = new window.kakao.maps.Marker({
+        map: mapRef.current,
+        position: new window.kakao.maps.LatLng(
+          restaurant.latitude,
+          restaurant.longitude,
+        ),
+        title: restaurant.name,
+        image: markerImage,
+      });
+
+      marker.setMap(mapRef.current);
+    });
+  }, [restaurants]);
+
+  // useEffect(() => {
+  //   function handleResize() {
+  //     setWindowSize({
+  //       width: window.innerWidth,
+  //       height: window.innerHeight,
+  //     });
+  //   }
+  //   if (typeof window !== 'undefined') {
+  //     window.addEventListener('resize', handleResize);
+  //   }
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
+
+  // useEffect(() => {
+  //   if (windowSize.width < 767 && windowSize.width !== 0) {
+  //     let center = new window.kakao.maps.LatLng(
+  //       mapCenter.latitude,
+  //       mapCenter.longitude,
+  //     );
+  //     mapRef.current.setCenter(center);
+  //   }
+  // }, [windowSize]);
 
   return (
     <MapWrapper>

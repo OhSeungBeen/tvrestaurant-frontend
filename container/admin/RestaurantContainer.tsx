@@ -2,6 +2,7 @@ import React from 'react';
 import RegisterForm from '../../components/admin/RegisterForm';
 import useInputs from '../../lib/hooks/useInputs';
 import * as RestaurantAPI from '../../lib/api/restaurants';
+import RestaurantList from '../../components/admin/RestaurantList';
 
 const RegisterFormContainer = () => {
   const [inputs, onChange] = useInputs({
@@ -29,7 +30,12 @@ const RegisterFormContainer = () => {
       });
   };
 
-  return <RegisterForm onChange={onChange} />;
+  return (
+    <>
+      {/* <RestaurantList /> */}
+      <RegisterForm onChange={onChange} onRegister={onRegister} />
+    </>
+  );
 };
 
 export default RegisterFormContainer;

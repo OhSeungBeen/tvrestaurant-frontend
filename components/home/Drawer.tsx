@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
 import { BottomSheet } from 'react-spring-bottom-sheet';
+import styled, { createGlobalStyle } from 'styled-components';
+
 import 'react-spring-bottom-sheet/dist/style.css';
 import IconButton from '../common/Iconbutton';
+import { Restaurant } from '../../modules/restaurants';
 
 interface DrawerProps {
   open: boolean;
+  restaurants: Restaurant[];
+  onDismiss: () => void;
 }
 
 const GlobalStyle = createGlobalStyle`
@@ -33,9 +37,9 @@ const BottomSheetHeader = styled.div`
   justify-content: center;
   align-items: center;
   height: 4rem;
-  font-size: ${({ theme }) => theme.fontSize.md};
+  font-size: ${({ theme }) => theme.font.md};
   .number {
-    font-weight: 600;
+    font-weight: bold;
     color: #283c63;
   }
 `;
@@ -46,6 +50,7 @@ const StoreListItem = styled.div`
   align-items: center;
   padding: 1rem 0;
   border-bottom: 1px solid #e8e8e8;
+  cursor: pointer;
 `;
 
 const ImageContainer = styled.div`
@@ -55,38 +60,36 @@ const ImageContainer = styled.div`
   div {
     width: 5rem;
     height: 5rem;
-    background: #f9f3ed;
+    background: #bbbfca;
   }
 `;
 
 const ContentContainer = styled.div`
   flex: 2;
   color: #495464;
-  .title {
+  .name {
     font-weight: 600;
-    font-size: 16px;
+    font-size: 0.875rem;
     color: #495464;
   }
-  .state {
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .time {
-    font-size: 13px;
+  .address,
+  .tel,
+  .category {
+    font-size: 0.8125rem;
     font-weight: 500;
   }
   .distace,
   .menu {
-    font-size: 14px;
+    font-size: 0.8125rem;
     font-weight: 500;
   }
   div + div {
-    margin: 10px 0;
+    margin: 0.75rem 0;
   }
   span + span {
     border-left: 1px solid #e8e8e8;
-    margin-left: 10px;
-    padding-left: 10px;
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
   }
 `;
 
@@ -101,16 +104,16 @@ const LikedContainer = styled.div`
   }
 `;
 
-const Drawer: React.FC<DrawerProps> = ({ open }) => {
-  const onDismiss = () => {
-    // setOpen(true);
+const Drawer: React.FC<DrawerProps> = ({ open, restaurants, onDismiss }) => {
+  const onClickStoreListItem = (restaurantId: number) => {
+    console.log(restaurantId);
   };
 
   return (
     <>
       <GlobalStyle />
       <BottomSheet
-        open={true}
+        open={open}
         // onDismiss={onDismiss}
         blocking={false}
         snapPoints={({ headerHeight, maxHeight }) => [
@@ -119,38 +122,54 @@ const Drawer: React.FC<DrawerProps> = ({ open }) => {
         ]}
         header={
           <BottomSheetHeader>
-            <span className="number">0</span>
+            <span className="number">{restaurants.length}</span>
             <span>개의 맛집을 찾았어요.</span>
           </BottomSheetHeader>
         }
       >
-        <StoreListItem>
-          <ImageContainer>
-            <div></div>
-          </ImageContainer>
-          <ContentContainer>
-            <div className="title">골목 식당</div>
-            <div>
-              <span className="state">영업중</span>
-              <span className="time">11:00 ~ 18:00</span>
-            </div>
-            <div>
-              <span className="distace">300m</span>
-              <span className="menu">크로와상, 타르트</span>
-            </div>
-          </ContentContainer>
-          <LikedContainer>
-            {/* <IconButton
-            width={like.width}
-            height={like.height}
-            defaultSrc={like.src}
-            activeSrc={liked.src}
-            active={active}
-            onToggle={onToggleLike}
-          /> */}
-            <span>0</span>
-          </LikedContainer>
-        </StoreListItem>
+        {restaurants.map((restaurant) => (
+          <StoreListItem
+            key={restaurant.id}
+            onClick={() => onClickStoreListItem(restaurant.id)}
+          >
+            <ImageContainer>
+              <div></div>
+            </ImageContainer>
+            <ContentContainer>
+              <div>
+                <span className="name">{restaurant.name}</span>
+                {restaurant.categories.map((category) => (
+                  <span className="category">{category.name}</span>
+                ))}
+              </div>
+              <div>
+                <span className="tel">{restaurant.tel}</span>
+              </div>
+              <div>
+                <span className="address">{restaurant.address}</span>
+              </div>
+              <div>
+                {restaurant.menus.map((menu) => (
+                  <span className="menu">{menu.name}</span>
+                ))}
+              </div>
+              {/* <div>
+                <span className="distace">300m</span>
+              </div> */}
+            </ContentContainer>
+            <LikedContainer>
+              {/* <IconButton
+                width={like.width}
+                height={like.height}
+                defaultSrc={like.src}
+                activeSrc={liked.src}
+                active={active}
+                onToggle={onToggleLike}
+              />
+              <span>0</span> */}
+            </LikedContainer>
+          </StoreListItem>
+        ))}
       </BottomSheet>
     </>
   );

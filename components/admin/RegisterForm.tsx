@@ -5,6 +5,7 @@ import Button from '../common/Button';
 
 interface RegisterFormProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRegister: () => void;
 }
 
 const Container = styled.div``;
@@ -18,7 +19,10 @@ const Title = styled.div`
   width: 10rem;
 `;
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onChange }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({
+  onChange,
+  onRegister,
+}) => {
   return (
     <Container>
       <Row>
@@ -37,7 +41,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onChange }) => {
         <Title>위치</Title>
         <RegisterInput name="location" onChange={onChange} />
       </Row>
-      <Button>abc</Button>
+      <Row>
+        <Button onClick={onRegister}>등록</Button>
+      </Row>
     </Container>
   );
 };

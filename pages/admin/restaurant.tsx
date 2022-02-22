@@ -1,10 +1,10 @@
 import { NextPage } from 'next';
 import React from 'react';
 
-import RegisterFormContainer from '../../container/admin/RegisterFormContainer';
+import RestaurantContainer from '../../container/admin/RestaurantContainer';
 
 const RegisterPage: NextPage = () => {
-  return <RegisterFormContainer />;
+  return <RestaurantContainer />;
 };
 
 export default RegisterPage;

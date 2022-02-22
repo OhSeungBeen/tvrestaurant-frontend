@@ -5,9 +5,9 @@ const host =
     ? '/'
     : process.env.APP_API_HOST || '/';
 
-const apiClient = axios.create({
+const client = axios.create({
   baseURL: host,
   withCredentials: true,
 });
 
-export default apiClient;
+export default client;
