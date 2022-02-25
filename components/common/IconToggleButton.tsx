@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-interface IconButtonProps {
+interface IconToggleButtonProps {
   defaultSrc: string;
   activeSrc: string;
   width: number;
@@ -10,7 +10,7 @@ interface IconButtonProps {
   onToggle?: () => void;
 }
 
-const Button = styled.button<IconButtonProps>`
+const Button = styled.button<IconToggleButtonProps>`
   width: ${(props) => `${props.width}px`};
   height: ${(props) => `${props.height}px`};
   border-style: none;
@@ -26,7 +26,7 @@ const Button = styled.button<IconButtonProps>`
     `}
 `;
 
-const IconButton: React.FC<IconButtonProps> = ({
+const IconToggleButton: React.FC<IconToggleButtonProps> = ({
   defaultSrc,
   activeSrc,
   width,
@@ -46,4 +46,4 @@ const IconButton: React.FC<IconButtonProps> = ({
   );
 };
 
-export default IconButton;
+export default IconToggleButton;

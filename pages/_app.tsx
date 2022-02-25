@@ -3,6 +3,7 @@ import { ThemeProvider } from 'styled-components';
 import { GlobalStyle } from '../styles/globalStyles';
 import { defaultTheme } from '../styles/defaultTheme';
 import { wrapper } from '../modules/store';
+import '../styles/antdStyles.less';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

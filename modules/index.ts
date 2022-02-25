@@ -1,9 +1,11 @@
 import { AnyAction, combineReducers, Reducer } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import restaurants, { RestaurantsState } from './restaurants';
+import map, { MapState } from './map';
 
 export type RootState = {
   restaurants: RestaurantsState;
+  map: MapState;
 };
 
 const reducer: Reducer<RootState, AnyAction> = (state, action) => {
@@ -11,7 +13,8 @@ const reducer: Reducer<RootState, AnyAction> = (state, action) => {
     return { ...state, ...action.payload };
   }
   return combineReducers({
-    restaurants: restaurants,
+    restaurants,
+    map,
   })(state, action);
 };
 

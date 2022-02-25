@@ -3,8 +3,8 @@ import { BottomSheet } from 'react-spring-bottom-sheet';
 import styled, { createGlobalStyle } from 'styled-components';
 
 import 'react-spring-bottom-sheet/dist/style.css';
-import IconButton from '../common/Iconbutton';
 import { Restaurant } from '../../modules/restaurants';
+import Link from 'next/link';
 
 interface DrawerProps {
   open: boolean;
@@ -16,14 +16,13 @@ const GlobalStyle = createGlobalStyle`
   body {
     [data-rsbs-overlay] {
       width: 28rem;
-      bottom: 4rem;
+      left: 28rem;
       margin: 0 auto;
-      transform: translateX(50%);
       
-      ${({ theme }: any) => theme.media.md} {
-        transform: translateX(0);
-        width: 100%;
-  }
+    ${({ theme }: any) => theme.media.md} {
+      left: 0;
+      width: 100%;
+    }
       
     }
     [data-rsbs-header]:before {
@@ -105,20 +104,19 @@ const LikedContainer = styled.div`
 `;
 
 const Drawer: React.FC<DrawerProps> = ({ open, restaurants, onDismiss }) => {
-  const onClickStoreListItem = (restaurantId: number) => {
-    console.log(restaurantId);
-  };
+  const onClickStoreListItem = (restaurantId: number) => {};
 
   return (
     <>
       <GlobalStyle />
       <BottomSheet
         open={open}
-        // onDismiss={onDismiss}
+        onDismiss={onDismiss}
         blocking={false}
-        snapPoints={({ headerHeight, maxHeight }) => [
+        snapPoints={({ headerHeight, maxHeight, minHeight }) => [
           headerHeight,
-          maxHeight - 64 - 64,
+          minHeight,
+          // maxHeight - 64 - 64,
         ]}
         header={
           <BottomSheetHeader>
@@ -128,47 +126,43 @@ const Drawer: React.FC<DrawerProps> = ({ open, restaurants, onDismiss }) => {
         }
       >
         {restaurants.map((restaurant) => (
-          <StoreListItem
+          <Link
+            href={`/restaurant/${encodeURIComponent(restaurant.id)}`}
             key={restaurant.id}
-            onClick={() => onClickStoreListItem(restaurant.id)}
           >
-            <ImageContainer>
-              <div></div>
-            </ImageContainer>
-            <ContentContainer>
-              <div>
-                <span className="name">{restaurant.name}</span>
-                {restaurant.categories.map((category) => (
-                  <span className="category">{category.name}</span>
-                ))}
-              </div>
-              <div>
-                <span className="tel">{restaurant.tel}</span>
-              </div>
-              <div>
-                <span className="address">{restaurant.address}</span>
-              </div>
-              <div>
-                {restaurant.menus.map((menu) => (
-                  <span className="menu">{menu.name}</span>
-                ))}
-              </div>
-              {/* <div>
+            <StoreListItem onClick={() => onClickStoreListItem(restaurant.id)}>
+              <ImageContainer>
+                <div></div>
+              </ImageContainer>
+              <ContentContainer>
+                <div>
+                  <span className="name">{restaurant.name}</span>
+                  {restaurant.categories.map((category, index) => (
+                    <span className="category" key={index}>
+                      {category.name}
+                    </span>
+                  ))}
+                </div>
+                <div>
+                  <span className="tel">{restaurant.tel}</span>
+                </div>
+                <div>
+                  <span className="address">{restaurant.address}</span>
+                </div>
+                <div>
+                  {restaurant.menus.map((menu, index) => (
+                    <span className="menu" key={index}>
+                      {menu.name}
+                    </span>
+                  ))}
+                </div>
+                {/* <div>
                 <span className="distace">300m</span>
               </div> */}
-            </ContentContainer>
-            <LikedContainer>
-              {/* <IconButton
-                width={like.width}
-                height={like.height}
-                defaultSrc={like.src}
-                activeSrc={liked.src}
-                active={active}
-                onToggle={onToggleLike}
-              />
-              <span>0</span> */}
-            </LikedContainer>
-          </StoreListItem>
+              </ContentContainer>
+              <LikedContainer></LikedContainer>
+            </StoreListItem>
+          </Link>
         ))}
       </BottomSheet>
     </>

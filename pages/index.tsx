@@ -1,84 +1,103 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { NextPage } from 'next';
 import Head from 'next/head';
+
+import { Checkbox, Row, Col } from 'antd';
+import { CheckboxValueType } from 'antd/lib/checkbox/Group';
 import styled from 'styled-components';
 
+import { getAllRestaurantsByLocation } from '../modules/restaurants';
+import { RootState } from '../modules';
+import { Map, setMap } from '../modules/map';
 import Header from '../components/base/Header';
 import Drawer from '../components/home/Drawer';
 import KakaoMap from '../components/home/Kakaomap';
-import HomeLayout from '../components/layout/HomeLayout';
+import BaseLayout from '../components/layout/Baselayout';
 import Footer from '../components/base/Footer';
-import { getAllRestaurantsByLocation } from '../modules/restaurants';
-import { RootState } from '../modules';
-
-const Left = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  width: 28rem;
-  height: 100vh;
-  ${({ theme }) => theme.media.md} {
-    display: none;
-  }
-`;
-
-const InfoContainer = styled.div`
-  width: 100%;
-  height: 50vh;
-  img {
-    margin-bottom: ${({ theme }) => theme.margin.xxxl};
-    height: 1.7rem;
-  }
-  h2 {
-    margin-bottom: ${({ theme }) => theme.margin.lg};
-  }
-  h3 {
-    margin-bottom: ${({ theme }) => theme.margin.md};
-    color: gray;
-  }
-`;
-
-const HomeContainer = styled.div`
-  width: 28rem;
-  height: 100vh;
-  ${({ theme }) => theme.media.md} {
-    width: 100%;
-  }
-`;
 
 const ScrollWrapper = styled.div`
   height: calc(100vh - 4rem);
   overflow: auto;
 `;
 
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  width: 100%;
+  padding: 0.5rem 1rem;
+`;
+
 const HomePage: NextPage = () => {
   const dispatch = useDispatch();
 
   const restaurants = useSelector((state: RootState) => state.restaurants.data);
+  const mapInfo = useSelector((state: RootState) => state.map.data);
 
   const [address, setAddress] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([
+    '골목식당',
+    '맛있는 녀석들',
+    '수요미식회',
+  ]);
 
-  const onSearch = (mapRef: any) => {
+  useEffect(() => {
+    if (restaurants.length > 0) {
+      setOpen(true);
+    }
+  }, [restaurants]);
+
+  const onSearch = useCallback(async (mapRef: any) => {
     const southWest = mapRef.current.getBounds().getSouthWest();
     const northEast = mapRef.current.getBounds().getNorthEast();
+
     dispatch(
       getAllRestaurantsByLocation({
         southWest: { latitude: southWest.Ma, longitude: southWest.La },
         northEast: { latitude: northEast.Ma, longitude: northEast.La },
       }),
     );
+  }, []);
 
-    setDrawerOpen(true);
-  };
-
-  const onChange = (address: string) => {
+  const onChangeAddress = useCallback((address: string) => {
     setAddress(address);
-  };
+  }, []);
+
+  const onChangeMap = useCallback((map: Map) => {
+    dispatch(setMap(map));
+  }, []);
 
   const onDismiss = () => {
-    setDrawerOpen(false);
+    setOpen(false);
+  };
+
+  const onClickLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          dispatch(
+            setMap({
+              level: 3,
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            }),
+          );
+        },
+        (error) => {
+          console.error(error);
+        },
+        {
+          enableHighAccuracy: false,
+          maximumAge: 0,
+          timeout: Infinity,
+        },
+      );
+    } else {
+      alert('GPS를 지원하지 않습니다');
+    }
+  };
+
+  const onChangeCheckList = (checkedValue: CheckboxValueType[]) => {
+    setCheckedList(checkedValue);
   };
 
   return (
@@ -88,31 +107,39 @@ const HomePage: NextPage = () => {
         <meta name="" content="" />
         <link rel="icon" href="" />
       </Head>
-      <HomeLayout>
-        <Left>
-          <InfoContainer>
-            <img src="/logo.svg" />
-            <h2>TV맛집 찾을 때는 티비 레스토랑!</h2>
-            <h3>#맛있는녀석들 #골목식당 #장사의신</h3>
-          </InfoContainer>
-        </Left>
-        <HomeContainer>
-          <Header onChange={onChange} />
-          <ScrollWrapper>
-            <KakaoMap
-              address={address ? address : undefined}
-              onSearch={onSearch}
-              restaurants={restaurants}
-            />
-            <Drawer
-              open={drawerOpen}
-              onDismiss={onDismiss}
-              restaurants={restaurants}
-            />
-            <Footer />
-          </ScrollWrapper>
-        </HomeContainer>
-      </HomeLayout>
+      <BaseLayout>
+        <Header
+          onChangeAddress={onChangeAddress}
+          onClickLocation={onClickLocation}
+        />
+        <StyledCheckboxGroup value={checkedList} onChange={onChangeCheckList}>
+          <Row>
+            <Col span={8}>
+              <Checkbox value="골목식당">골목식당</Checkbox>
+            </Col>
+            <Col span={8}>
+              <Checkbox value="맛있는 녀석들">맛있는 녀석들</Checkbox>
+            </Col>
+            <Col span={8}>
+              <Checkbox value="수요미식회">수요미식회</Checkbox>
+            </Col>
+          </Row>
+        </StyledCheckboxGroup>
+
+        <ScrollWrapper>
+          <KakaoMap
+            address={address ? address : undefined}
+            restaurants={restaurants}
+            level={mapInfo.level}
+            latitude={mapInfo.latitude}
+            longitude={mapInfo.longitude}
+            onSearch={onSearch}
+            onChange={onChangeMap}
+          />
+          <Drawer open={open} restaurants={restaurants} onDismiss={onDismiss} />
+          <Footer />
+        </ScrollWrapper>
+      </BaseLayout>
     </>
   );
 };

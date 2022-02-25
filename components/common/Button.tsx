@@ -4,12 +4,19 @@ import { palette } from '../../styles/palette';
 
 interface ButtonProps
   extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'size'> {
-  color?: 'pink' | 'beige' | 'gray' | 'navy';
+  color?: 'pink' | 'beige' | 'gray' | 'navy' | 'transparent';
   size?: 'md' | 'lg';
 }
 
 const StyledButton = styled.button<{ color: string; size: string }>`
-  color: white;
+  ${(props) =>
+    props.color === 'transparent'
+      ? css`
+          color: #000;
+        `
+      : css`
+          color: #fff;
+        `}
   font-weight: bold;
   cursor: pointer;
   outline: none;

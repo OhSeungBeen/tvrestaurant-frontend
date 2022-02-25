@@ -37,12 +37,10 @@ const Modal = styled.div`
     cursor: pointer;
   }
   svg {
-    width: 1.3rem;
-    height: 1.3rem;
+    font-size: 1.3rem;
   }
   .daum-post-code {
-    width: 100% !important;
-    height: 90% !important;
+    height: 30rem !important;
   }
 `;
 

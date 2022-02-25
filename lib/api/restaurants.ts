@@ -13,10 +13,13 @@ export const getAll = () => client.get('/api/v1/restaurants');
 export const getAllByLocation = ({
   southWest,
   northEast,
-}: GetAllByLocationRequest) =>
-  client.get(
+}: GetAllByLocationRequest) => {
+  return client.get(
     `/api/v1/restaurants?southWestLatitude=${southWest.latitude}&southWestLongitude=${southWest.longitude}&eastNorthLatitude=${northEast.latitude}&eastNorthLongitude=${northEast.longitude}`,
   );
+};
+
+export const get = (id: string) => client.get(`/api/v1/restaurants/${id}`);
 
 // 추가
 export const create = (restaurant: Restaurant) =>
